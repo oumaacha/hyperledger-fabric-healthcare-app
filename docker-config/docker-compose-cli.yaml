@@ -53,7 +53,7 @@ services:
       - CORE_PEER_LOCALMSPID=HospitalRabatMSP
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_CERT_FILE=/opt/gopath/fabric/config/crypto-config/peerOrganizations/rabat.securehealth.com/peers/peer0.rabat.securehealth.com/tls/server.crt
-      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/fabric/config/crypto-config/peerOrganizations/rabat.securehealth.com/peers/peer0.rabat.burakcan-network.com/tls/server.key
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/fabric/config/crypto-config/peerOrganizations/rabat.securehealth.com/peers/peer0.rabat.securehealth.com/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/fabric/config/crypto-config/peerOrganizations/casa.securehealth.com/peers/peer0.casa.securehealth.com/tls/ca.crt
       - CORE_PEER_MSPCONFIGPATH=/opt/gopath/fabric/config/crypto-config/peerOrganizations/casa.securehealth.com/users/Admin@casa.securehealth.com/msp
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
@@ -63,7 +63,7 @@ services:
         - ../chaincode/:/opt/gopath/src/chain
         - ../config/crypto-config:/opt/gopath/fabric/securehealth/crypto-config/
         - ../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
-        - ../channel-artifacts:/opt/gopath/fabric-samples/burakcan-network/channel-artifacts
+        - ../channel-artifacts:/opt/gopath/fabric/channel-artifacts
 
     depends_on:
       - orderer.securehealth.com
