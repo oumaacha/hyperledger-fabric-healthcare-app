@@ -1,0 +1,24 @@
+OrdererOrgs:
+  - Name: OrderingService
+    Domain: securehealth.com
+    Specs:
+      - Hostname: orderer
+
+PeerOrgs:
+  - Name: HospitalRabat
+    Domain: rabat.securehealth.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+
+    Users: 
+      Count: 1
+      
+  - Name: HospitalCasa
+    Domain: casa.securehealth.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+
+    Users: 
+      Count: 1
