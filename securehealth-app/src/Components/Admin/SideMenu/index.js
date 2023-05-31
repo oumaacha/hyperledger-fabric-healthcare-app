@@ -11,7 +11,7 @@ import {
 
 function SideMenu() {
   const location = useLocation();
-  const [selectedKeys, setSelectedKeys] = useState("/admin");
+  const [selectedKeys, setSelectedKeys] = useState("/admin-data");
 
   useEffect(() => {
     const pathName = location.pathname;
@@ -24,29 +24,30 @@ function SideMenu() {
     {
       label: "Admin Data",
       icon: <DatabaseOutlined />,
-      key: "/admin-data",
+      key: "/admin/admin-data",
     },
     {
       label: "Patients",
-      key: "/admin-patients",
+      key: "/admin/admin-patients",
       icon: <UserOutlined />,
     },
     {
       label: "Doctors",
-      key: "/admin-doctors",
+      key: "/admin/admin-doctors",
       icon: <MedicineBoxOutlined />,
     },
     {
       label: "Add Patient",
-      key: "/admin-new-patient",
+      key: "/admin/admin-new-patient",
       icon: <UserAddOutlined />,
     },
     {
       label: "Add Doctor",
-      key: "/admin-new-doctor",
+      key: "/admin/admin-new-doctor",
       icon: <UserAddOutlined />,
     },
   ];
+  
 
   return (
     <div className="SideMenu">

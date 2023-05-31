@@ -6,6 +6,7 @@ import AdminNewPatient from "../../../Pages/Admin/AdminNewPatient/AdminNewPatien
 import AdminNewDoctor from "../../../Pages/Admin/AdminNewDoctor/AdminNewDoctor";
 
 
+
 function AppRoutes() {
   return (
     <Routes>
