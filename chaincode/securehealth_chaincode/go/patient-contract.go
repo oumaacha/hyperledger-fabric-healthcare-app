@@ -73,6 +73,20 @@ func (c *PrimaryContract) PatientExists(ctx contractapi.TransactionContextInterf
 	return patientBytes != nil && len(patientBytes) > 0, nil
 }
 
+// we will add new args later
+func (s *PrimaryContract) createPatient(ctx contractapi.TransactionContextInterface, patientID string, firstName string, lastName string, age int) error {
+	newPatient := Patient{
+		PatientID:   patientID,
+		FirstName:  firstName,
+		LastName: lastName,
+		Age:  age
+	}
+
+	patientAsBytes, _ := json.Marshal(newPatient)
+
+	return ctx.GetStub().PutState(patientID, patientAsBytes)
+}
+
 func main() {
 
         chaincode, err := contractapi.NewChaincode(new(PrimaryContract))
