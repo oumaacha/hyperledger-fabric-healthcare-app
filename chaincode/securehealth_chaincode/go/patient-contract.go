@@ -1,26 +1,32 @@
 package main
 
 import (
-	"securehealth.com/entities"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
-	"github.com/hyperledger/fabric-contract-api-go/contractapi"
-)
 
+	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+	"securehealth.com/entities"
+)
 
 type PrimaryContract struct {
 	contractapi.Contract
 }
 
+type QueryResult struct {
+	Key    string             `json:"Key"`
+	Record *entities.Patient
+}
+
 func (c *PrimaryContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("============= START : Initialize Ledger ===========")
-	initPatients := []Patient{
-		Patient{PatientId:"PT0", FirstName:"Anouar1", LastName:"Oumaacha1", Age:24 },
-		Patient{PatientId:"PT1", FirstName:"Anouar2", LastName:"Oumaacha2", Age:23 },
-		Patient{PatientId:"PT2", FirstName:"Anouar3", LastName:"Oumaacha3", Age:23 },
-		Patient{PatientId:"PT3", FirstName:"Anouar4", LastName:"Oumaacha4", Age:18 },
-		Patient{PatientId:"PT4", FirstName:"Anouar5", LastName:"Oumaacha5", Age:28 },
+	initPatients := []entities.Patient{
+		{PatientID: "PT0", FirstName: "Anouar1", LastName: "Oumaacha1", Age: 24},
+		{PatientID: "PT1", FirstName: "Anouar2", LastName: "Oumaacha2", Age: 23},
+		{PatientID: "PT2", FirstName: "Anouar3", LastName: "Oumaacha3", Age: 23},
+		{PatientID: "PT3", FirstName: "Anouar4", LastName: "Oumaacha4", Age: 18},
+		{PatientID: "PT4", FirstName: "Anouar5", LastName: "Oumaacha5", Age: 28},
 	}
 
 	for i, patient := range initPatients {
@@ -40,22 +46,23 @@ func (c *PrimaryContract) InitLedger(ctx contractapi.TransactionContextInterface
 	fmt.Println("============= END : Initialize Ledger ===========")
 	return nil
 }
-/*******************************************************************************************/
-func (c *PrimaryContract) ReadPatient(ctx contractapi.TransactionContextInterface, patientId string) (*Patient, error) {
-	 exists, err := c.PatientExists(ctx, patientId)
-	 if err != nil {
-	 	return nil, err
-	 }
-	 if !exists {
-	 	return nil, errors.New("The patient " + patientId + " does not exist")
+
+func (c *PrimaryContract) ReadPatient(ctx contractapi.TransactionContextInterface, patientID string) (*entities.Patient, error) {
+	exists, err := c.PatientExists(ctx, patientID)
+	if err != nil {
+		return nil, err
 	}
-	// patientId is the key
-	patientBytes, err := ctx.GetStub().GetState(patientId)
+	if !exists {
+		return nil, errors.New("The patient " + patientID + " does not exist")
+	}
+
+	// patientID is the key
+	patientBytes, err := ctx.GetStub().GetState(patientID)
 	if err != nil {
 		return nil, err
 	}
 
-	patient := new(Patient)
+	patient := new(entities.Patient)
 	err = json.Unmarshal(patientBytes, patient)
 	if err != nil {
 		return nil, err
@@ -64,8 +71,8 @@ func (c *PrimaryContract) ReadPatient(ctx contractapi.TransactionContextInterfac
 	return patient, nil
 }
 
-func (c *PrimaryContract) PatientExists(ctx contractapi.TransactionContextInterface, patientId string) (bool, error) {
-	patientBytes, err := ctx.GetStub().GetState(patientId)
+func (c *PrimaryContract) PatientExists(ctx contractapi.TransactionContextInterface, patientID string) (bool, error) {
+	patientBytes, err := ctx.GetStub().GetState(patientID)
 	if err != nil {
 		return false, err
 	}
@@ -73,18 +80,35 @@ func (c *PrimaryContract) PatientExists(ctx contractapi.TransactionContextInterf
 	return patientBytes != nil && len(patientBytes) > 0, nil
 }
 
-// we will add new args later
-func (s *PrimaryContract) createPatient(ctx contractapi.TransactionContextInterface, patientID string, firstName string, lastName string, age int) error {
-	newPatient := Patient{
-		PatientID:   patientID,
-		FirstName:  firstName,
-		LastName: lastName,
-		Age:  age
+func (c *PrimaryContract) QueryAllPatients(ctx contractapi.TransactionContextInterface) ([]QueryResult, error) {
+	startKey := ""
+	endKey := ""
+
+	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
+
+	results := []QueryResult{}
+
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+		if err != nil {
+			return nil, err
+		}
+
+		patient := new(entities.Patient)
+		err = json.Unmarshal(queryResponse.Value, patient)
+		if err != nil {
+			return nil, err
+		}
+
+		queryResult := QueryResult{Key: queryResponse.Key, Record: patient}
+		results = append(results, queryResult)
 	}
 
-	patientAsBytes, _ := json.Marshal(newPatient)
-
-	return ctx.GetStub().PutState(patientID, patientAsBytes)
+	return results, nil
 }
 
 func main() {
