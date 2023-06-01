@@ -59,6 +59,10 @@ function AdminPatients() {
       dataIndex: "lastName",
     },
     {
+      title: "Email",
+      dataIndex: "email",
+    },
+    {
       title: "Phone",
       dataIndex: "phone",
     },
@@ -75,12 +79,16 @@ function AdminPatients() {
       dataIndex: "allergies",
     },
     {
-      title: "Symptoms",
-      dataIndex: "symptoms",
+      title: "Disease",
+      dataIndex: "disease",
     },
     {
-      title: "Diagnosis",
-      dataIndex: "diagnosis",
+      title: "Start Date",
+      dataIndex: "startDate",
+    },
+    {
+      title: "Follow Up",
+      dataIndex: "followup",
     },
     {
       title: "Treatment",

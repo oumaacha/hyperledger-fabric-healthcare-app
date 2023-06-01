@@ -1,4 +1,4 @@
-import { Avatar, Button, Rate, Space, Table, Typography, Modal, Form, Input } from "antd";
+import { Avatar, Button, Rate, Space, Table, Typography, Modal, Form, Input ,Select} from "antd";
 import { useEffect, useState } from "react";
 import { getCustomers } from "../../../API";
 
@@ -135,28 +135,47 @@ function AdminDoctors() {
           ]}
         >
           <Form
-            form={editForm} // Use the form instance
-            onFinish={handleEditModalSubmit}
-          >
-            {/* Render your form fields here */}
-            <Form.Item name="firstName" label="First Name">
-              <Input />
-            </Form.Item>
-            <Form.Item name="lastName" label="Last Name">
-              <Input />
-            </Form.Item>
-            <Form.Item name="email" label="Email">
-              <Input disabled />
-            </Form.Item>
-            <Form.Item name="phone" label="Phone">
-              <Input />
-            </Form.Item>
-            <Form.Item name="birthDate" label="Birth Date">
-              <Input type="date"/>
-            </Form.Item>
-            
-            {/* Add more fields as needed */}
-          </Form>
+  form={editForm} // Use the form instance
+  onFinish={handleEditModalSubmit}
+>
+  {/* Render your form fields here */}
+  <Form.Item name="firstName" label="First Name">
+    <Input />
+  </Form.Item>
+  <Form.Item name="lastName" label="Last Name">
+    <Input />
+  </Form.Item>
+  <Form.Item name="email" label="Email">
+    <Input disabled />
+  </Form.Item>
+  <Form.Item name="phone" label="Phone">
+    <Input />
+  </Form.Item>
+  <Form.Item name="birthDate" label="Birth Date">
+    <Input type="date" />
+  </Form.Item>
+  <Form.Item name="speciality" label="Speciality">
+    <Input />
+  </Form.Item>
+  <Form.Item name="gender" label="Gender">
+  <Select>
+    <Select.Option value="Male">Male</Select.Option>
+    <Select.Option value="Female">Female</Select.Option>
+  </Select>
+</Form.Item>
+
+<Form.Item name="hospital" label="Hospital">
+  <Select>
+    <Select.Option value="Hospital Rabat">Hospital Rabat</Select.Option>
+    <Select.Option value="Hospital Casa">Hospital Casa</Select.Option>
+  </Select>
+</Form.Item>
+  <Form.Item name="address" label="Address">
+    <Input.TextArea />
+  </Form.Item>
+  {/* Add more fields as needed */}
+</Form>
+
         </Modal>
       )}
     </Space>
