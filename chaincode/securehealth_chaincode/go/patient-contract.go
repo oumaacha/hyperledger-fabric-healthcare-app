@@ -22,11 +22,11 @@ type QueryResult struct {
 func (c *PrimaryContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	fmt.Println("============= START : Initialize Ledger ===========")
 	initPatients := []entities.Patient{
-		{PatientID: "PT0", FirstName: "Anouar1", LastName: "Oumaacha1", Age: 24},
-		{PatientID: "PT1", FirstName: "Anouar2", LastName: "Oumaacha2", Age: 23},
-		{PatientID: "PT2", FirstName: "Anouar3", LastName: "Oumaacha3", Age: 23},
-		{PatientID: "PT3", FirstName: "Anouar4", LastName: "Oumaacha4", Age: 18},
-		{PatientID: "PT4", FirstName: "Anouar5", LastName: "Oumaacha5", Age: 28},
+		{PatientID: "PT0", FirstName: "Anouar1", LastName: "Oumaacha1", Age: 24, Password: "mypass1"},
+		{PatientID: "PT1", FirstName: "Anouar2", LastName: "Oumaacha2", Age: 23, Password: "mypass2"},
+		{PatientID: "PT2", FirstName: "Anouar3", LastName: "Oumaacha3", Age: 23, Password: "mypass3"},
+		{PatientID: "PT3", FirstName: "Anouar4", LastName: "Oumaacha4", Age: 18, Password: "mypass4"},
+		{PatientID: "PT4", FirstName: "Anouar5", LastName: "Oumaacha5", Age: 28, Password: "mypass5"},
 	}
 
 	for i, patient := range initPatients {
@@ -110,6 +110,103 @@ func (c *PrimaryContract) QueryAllPatients(ctx contractapi.TransactionContextInt
 
 	return results, nil
 }
+
+func (c *PrimaryContract) DeletePatient(ctx contractapi.TransactionContextInterface, patientId string) error {
+	exists, err := c.PatientExists(ctx, patientId)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("The patient %s does not exist", patientId)
+	}
+
+	err = ctx.GetStub().DelState(patientId)
+	if err != nil {
+		return err
+	}
+	err = c.SetPatientAsDeleted(ctx, patientId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *PrimaryContract) GetPatientPassword(ctx contractapi.TransactionContextInterface, patientID string) (string, error) {
+	patient, err := c.ReadPatient(ctx, patientID)
+	if err != nil {
+		return "",err
+	}
+	password := patient.Password
+
+	return password,nil
+}
+
+func (c *PrimaryContract) UpdatePatient(ctx contractapi.TransactionContextInterface, patientID string, firstName string, lastName string, age int) error {
+        exists, err := c.PatientExists(ctx, patientID)
+        if err != nil {
+                return err
+        }
+        if !exists {
+                return fmt.Errorf("The patient %s does not exist", patientID)
+        }
+
+        patient, err := c.ReadPatient(ctx, patientID)
+        if err != nil {
+                return err
+        }
+
+        // Update the patient details
+        patient.FirstName = firstName
+        patient.LastName = lastName
+        patient.Age = age
+
+        // Marshal the updated patient object into JSON bytes
+        updatedPatientBytes, err := json.Marshal(patient)
+        if err != nil {
+                return err
+        }
+
+        // Update the state on the ledger with the updated patient object
+        err = ctx.GetStub().PutState(patientID, updatedPatientBytes)
+        if err != nil {
+                return err
+        }
+
+        return nil
+}
+
+func (c *PrimaryContract) SetPatientAsDeleted(ctx contractapi.TransactionContextInterface, patientID string) error {
+        exists, err := c.PatientExists(ctx, patientID)
+        if err != nil {
+                return err
+        }
+        if !exists {
+                return fmt.Errorf("The patient %s does not exist", patientID)
+        }
+
+        patient, err := c.ReadPatient(ctx, patientID)
+        if err != nil {
+                return err
+        }
+
+        // Set the IsDeleted flag to true
+        patient.IsDeleted = true
+
+        // Marshal the updated patient object into JSON bytes
+        updatedPatientBytes, err := json.Marshal(patient)
+        if err != nil {
+                return err
+        }
+
+        // Update the state on the ledger with the updated patient object
+        err = ctx.GetStub().PutState(patientID, updatedPatientBytes)
+        if err != nil {
+                return err
+        }
+
+        return nil
+}
+
 
 func main() {
 
