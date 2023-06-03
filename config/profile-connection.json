@@ -1,0 +1,49 @@
+{
+    "name": "securehealth-rabat",
+    "version": "1.0.0",
+    "client": {
+        "organization": "HospitalRabat",
+        "connection": {
+            "timeout": {
+                "peer": {
+                    "endorser": "300"
+                }
+            }
+        }
+    },
+    "organizations": {
+        "Burakcan1": {
+            "mspid": "HospitalRabatMSP",
+            "peers": [
+                "peer0.rabat.securehealth.com"
+            ],
+            "certificateAuthorities": [
+                "ca.rabat.securehealth.com"
+            ]
+        }
+    },
+    "peers": {
+        "peer0.rabat.securehealth.com": {
+            "url": "grpcs://localhost:7051",
+            "tlsCACerts": {
+                "path": "crypto-config/peerOrganizations/rabat.securehealth.com/peers/peer0.rabat.securehealth.com/msp/tlscacerts/tlsca.rabat.securehealth.com-cert.pem"
+            },
+            "grpcOptions": {
+                "ssl-target-name-override": "peer0.rabat.securehealth.com",
+                "hostnameOverride": "peer0.rabat.securehealth.com"
+            }
+        }
+    },
+    "certificateAuthorities": {
+        "ca.rabat.securehealth.com": {
+            "url": "https://localhost:7054",
+            "caName": "ca-rabat",
+            "tlsCACerts": {
+                "path": "crypto-config/peerOrganizations/rabat.securehealth.com/ca/ca.rabat.securehealth.com-cert.pem"
+            },
+            "httpOptions": {
+                "verify": false
+            }
+        }
+    }
+}
