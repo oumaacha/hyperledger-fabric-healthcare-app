@@ -27,7 +27,9 @@ function AppHeader() {
   const handleMenuClick = (e) => {
     // Handle menu item click (e.g., profile, logout)
     if (e.key === "profile") {
+
       navigate("/admin"); // Redirect to profile page
+
     } else if (e.key === "logout") {
       navigate("/login"); // Redirect to login page
     }
