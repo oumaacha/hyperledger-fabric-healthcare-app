@@ -47,7 +47,7 @@ func (c *PrimaryContract) InitLedger(ctx contractapi.TransactionContextInterface
 	return nil
 }
 
-func (c *PrimaryContract) grantAccessToDoctor(ctx contractapi.TransactionContextInterface, patientId string, doctorId string) error {
+func (c *PrimaryContract) GrantAccessToDoctor(ctx contractapi.TransactionContextInterface, patientId string, doctorId string) error {
 	exists, err := c.PatientExists(ctx, patientId)
 	if err != nil {
 		return err
@@ -85,22 +85,22 @@ func (c *PrimaryContract) grantAccessToDoctor(ctx contractapi.TransactionContext
 func (c *PrimaryContract) ReadPatient(ctx contractapi.TransactionContextInterface, patientID string) (*entities.Patient, error) {
 	exists, err := c.PatientExists(ctx, patientID)
 	if err != nil {
-		return nil, err
+		return nil,err
 	}
 	if !exists {
-		return nil, errors.New("The patient " + patientID + " does not exist")
+		return nil,errors.New("The patient " + patientID + " does not exist")
 	}
 
 	// patientID is the key
 	patientBytes, err := ctx.GetStub().GetState(patientID)
 	if err != nil {
-		return nil, err
+		return nil,err
 	}
 
 	patient := new(entities.Patient)
 	err = json.Unmarshal(patientBytes, patient)
 	if err != nil {
-		return nil, err
+		return nil,err
 	}
 
 	return patient, nil
