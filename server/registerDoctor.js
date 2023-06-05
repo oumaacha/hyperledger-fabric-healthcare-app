@@ -4,7 +4,7 @@ const { Wallets } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const fs = require('fs');
 const path = require('path');
-
+const doctor = "naim"
 async function main() {
     try {
         // load the network configuration
@@ -21,9 +21,9 @@ async function main() {
         console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
-        const userIdentity = await wallet.get('anouar2');
+        const userIdentity = await wallet.get(doctor);
         if (userIdentity) {
-            console.log('An identity for the user "anouar2" already exists in the wallet');
+            console.log(`An identity for the user ${doctor} already exists in the wallet`);
             return;
         }
 
@@ -31,7 +31,6 @@ async function main() {
         const adminIdentity = await wallet.get('admin');
         if (!adminIdentity) {
             console.log('An identity for the admin user "admin" does not exist in the wallet');
-            console.log('Run the enrollAdmin.js application before retrying');
             return;
         }
 
@@ -42,11 +41,11 @@ async function main() {
         // Register the user, enroll the user, and import the new identity into the wallet.
         const secret = await ca.register({
             affiliation: 'org1.department1',
-            enrollmentID: 'anouar2',
-            role: 'doctor'
+            enrollmentID: doctor,
+            role: 'client'
         }, adminUser);
         const enrollment = await ca.enroll({
-            enrollmentID: 'anouar2',
+            enrollmentID: doctor,
             enrollmentSecret: secret
         });
         const x509Identity = {
@@ -57,11 +56,11 @@ async function main() {
             mspId: 'HospitalRabatMSP',
             type: 'X.509',
         };
-        await wallet.put('anouar2', x509Identity);
-        console.log('Successfully registered and enrolled admin user "anouar2" and imported it into the wallet');
+        await wallet.put(doctor, x509Identity);
+        console.log(`Successfully registered and enrolled admin user ${doctor} and imported it into the wallet`);
 
     } catch (error) {
-        console.error(`Failed to register user "anouar2": ${error}`);
+        console.error(`Failed to register user ${doctor} : ${error}`);
         process.exit(1);
     }
 }
