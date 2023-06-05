@@ -1,0 +1,180 @@
+Organizations:
+
+  - &OrdererOrg
+    Name: OrderingService
+    ID: OrdererMSP
+    MSPDir: crypto-config/ordererOrganizations/securehealth.com/msp
+    
+    Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Writers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Admins:
+                Type: Signature
+                Rule: "OR('OrdererMSP.admin')"
+
+    OrdererEndpoints:
+            - orderer.securehealth.com:7050
+
+  - &HospitalRabat
+    Name: HospitalRabatMSP
+    ID: HospitalRabatMSP
+    MSPDir: crypto-config/peerOrganizations/rabat.securehealth.com/msp
+    Policies:
+          Readers:
+              Type: Signature
+              Rule: "OR('HospitalRabatMSP.admin', 'HospitalRabatMSP.peer', 'HospitalRabatMSP.client')"
+          Writers:
+              Type: Signature
+              Rule: "OR('HospitalRabatMSP.admin', 'HospitalRabatMSP.client')"
+          Admins:
+              Type: Signature
+              Rule: "OR('HospitalRabatMSP.admin')" 
+          Endorsement:
+              Type: Signature
+              Rule: "OR('HospitalRabatMSP.peer')"     
+
+    AnchorPeers:
+      - Host: peer0.rabat.securehealth.com
+        Port: 7051
+
+  - &HospitalCasa
+    Name: HospitalCasaMSP
+    ID: HospitalCasaMSP
+    MSPDir: crypto-config/peerOrganizations/casa.securehealth.com/msp
+    Policies:
+          Readers:
+              Type: Signature
+              Rule: "OR('HospitalCasaMSP.admin', 'HospitalCasaMSP.peer', 'HospitalCasaMSP.client')"
+          Writers:
+              Type: Signature
+              Rule: "OR('HospitalCasaMSP.admin', 'HospitalCasaMSP.client')"
+          Admins:
+              Type: Signature
+              Rule: "OR('HospitalCasaMSP.admin')" 
+          Endorsement:
+              Type: Signature
+              Rule: "OR('HospitalCasaMSP.peer')" 
+
+    AnchorPeers:
+      - Host: peer0.casa.securehealth.com
+        Port: 7051
+
+Capabilities:
+
+    Channel: &ChannelCapabilities
+
+        V2_0: true
+
+
+    Orderer: &OrdererCapabilities
+    
+        V2_0: true
+
+    Application: &ApplicationCapabilities
+
+        V2_0: true
+# Orderer
+
+Orderer: &OrdererDefaults
+
+    OrdererType: solo
+    Addresses: 
+        - orderer.securehealth.com:7050
+    BatchTimeout: 2s
+    BatchSize:
+        MaxMessageCount: 10
+        AbsoluteMaxBytes: 99 MB
+        PreferredMaxBytes: 512 KB
+    Kafka:
+        Brokers: 
+            - 127.0.0.1:9092
+
+    Organizations:
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        BlockValidation:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+Channel: &ChannelDefaults
+
+    Policies:
+
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+
+
+    Capabilities:
+        <<: *ChannelCapabilities
+# Application
+
+Application: &ApplicationDefaults
+
+    Organizations:
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        LifecycleEndorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Endorsement"
+        Endorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Endorsement"
+
+    Capabilities:
+        <<: *ApplicationCapabilities
+
+Profiles:
+    OrdererGenesis:
+      <<: *ChannelDefaults
+      Capabilities:
+        <<: *ChannelCapabilities
+      Orderer:
+        <<: *OrdererDefaults
+        Organizations:
+          - *OrdererOrg
+        Capabilities:
+          <<: *OrdererCapabilities
+      Consortiums:
+        MyFirstConsortium:
+          Organizations:
+            - *HospitalRabat 
+            - *HospitalCasa
+            
+    ChannelDemo:
+      Consortium: MyFirstConsortium
+      <<: *ChannelDefaults
+      Application:
+        <<: *ApplicationDefaults
+        Organizations:
+          - *HospitalRabat
+          - *HospitalCasa
+          
+        Capabilities:
+          <<: *ApplicationCapabilities
