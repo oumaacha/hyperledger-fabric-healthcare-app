@@ -4,8 +4,12 @@ const { Wallets } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const fs = require('fs');
 const path = require('path');
-const doctor = "naim"
-async function main() {
+const { error } = require('console');
+const nano = require('nano')('http://localhost:5984');
+const dbName = 'securehealth_db';
+const db = nano.db.use(dbName);
+
+async function main(doctorData) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(__dirname, '../config', 'profile-con-rabat.json');
@@ -21,9 +25,9 @@ async function main() {
         console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
-        const userIdentity = await wallet.get(doctor);
+        const userIdentity = await wallet.get(doctorData.id);
         if (userIdentity) {
-            console.log(`An identity for the user ${doctor} already exists in the wallet`);
+            console.log(`An identity for the user ${doctorData.lastname} already exists in the wallet`);
             return;
         }
 
@@ -41,28 +45,45 @@ async function main() {
         // Register the user, enroll the user, and import the new identity into the wallet.
         const secret = await ca.register({
             affiliation: 'org1.department1',
-            enrollmentID: doctor,
+            enrollmentID: doctorData.id,
             role: 'client'
         }, adminUser);
         const enrollment = await ca.enroll({
-            enrollmentID: doctor,
+            enrollmentID: doctorData.id,
             enrollmentSecret: secret
         });
         const x509Identity = {
             credentials: {
                 certificate: enrollment.certificate,
-                privateKey: enrollment.key.toBytes(),
+                privateKey: enrollment.key.toBytes()
             },
             mspId: 'HospitalRabatMSP',
             type: 'X.509',
         };
-        await wallet.put(doctor, x509Identity);
-        console.log(`Successfully registered and enrolled admin user ${doctor} and imported it into the wallet`);
-
+        
+        await wallet.put(doctorData.id, x509Identity);
+        const document = {
+            _id: doctorData.id, 
+            firstname: doctorData.firstname,
+            lastname: doctorData.lastname,
+            password: doctorData.password,
+            phone: doctorData.phone,
+            gender: doctorData.gender,
+            hospital: doctorData.hospital,
+            speciality: doctorData.speciality,
+            address: doctorData.address
+        };
+        db.insert(document, (err, body) => {
+            if (err) {
+              console.error('Error inserting document:', err);
+            } else {
+              console.log('Document inserted successfully:', body);
+              console.log(`Successfully registered and enrolled ${doctorData.lastname} and imported it into the wallet`);
+            }
+        });
     } catch (error) {
-        console.error(`Failed to register user ${doctor} : ${error}`);
-        process.exit(1);
+        console.error(`Failed to register user ${doctorData.lastname} : ${error}`);
     }
 }
 
-main();
+module.exports = main;

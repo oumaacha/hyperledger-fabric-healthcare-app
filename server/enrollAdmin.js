@@ -19,7 +19,7 @@ async function main() {
         const caInfo = ccp.certificateAuthorities['ca.rabat.securehealth.com'];
         caInfo.tlsCACerts.pem = fs.readFileSync(path.resolve(__dirname, '../config', caInfo.tlsCACerts.path), 'utf8');
         console.log(path.resolve(__dirname, '../config', caInfo.tlsCACerts.path))
-	const caTLSCACerts = caInfo.tlsCACerts.pem;
+	    const caTLSCACerts = caInfo.tlsCACerts.pem;
         const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.caName);
 
         // Create a new file system based wallet for managing identities.
@@ -29,11 +29,12 @@ async function main() {
 
         // Check to see if we've already enrolled the admin user.
         const identity = await wallet.get('admin');
+
         if (identity) {
             console.log('An identity for the admin user "admin" already exists in the wallet');
             return;
         }
-	console.log("I'm here 1")
+
         // Enroll the admin user, and import the new identity into the wallet.
         const enrollment = await ca.enroll({ enrollmentID: 'admin', enrollmentSecret: 'adminpw' });
         const x509Identity = {
